@@ -9,13 +9,14 @@ namespace ParcelRegistry.Legacy
 
     public partial class Parcel
     {
-        private ParcelId _parcelId;
+        public ParcelId ParcelId { get; private set; }
 
         public bool IsRemoved { get; private set; }
         public bool IsRetired { get; private set; }
         public bool IsRealized { get; private set; }
 
         private readonly AddressCollection _addressCollection = new AddressCollection();
+        public IReadOnlyList<AddressId> AddressIds => new List<AddressId>(_addressCollection.AllAddressIds());
         public Modification LastModificationBasedOnCrab { get; private set; }
 
         private readonly Dictionary<CrabTerrainObjectHouseNumberId, CrabHouseNumberId>
@@ -111,7 +112,7 @@ namespace ParcelRegistry.Legacy
 
         private void When(ParcelWasRegistered @event)
         {
-            _parcelId = new ParcelId(@event.ParcelId);
+            ParcelId = new ParcelId(@event.ParcelId);
         }
 
         private void When(ParcelWasRecovered @event)
@@ -129,7 +130,7 @@ namespace ParcelRegistry.Legacy
 
         private void When(ParcelSnapshot snapshot)
         {
-            _parcelId = new ParcelId(snapshot.ParcelId);
+            ParcelId = new ParcelId(snapshot.ParcelId);
             if (!string.IsNullOrEmpty(snapshot.ParcelStatus))
             {
                 var status = ParcelStatus.Parse(snapshot.ParcelStatus);
@@ -173,7 +174,7 @@ namespace ParcelRegistry.Legacy
                 parcelStatus = ParcelStatus.Realized;
 
             return new ParcelSnapshot(
-                _parcelId,
+                ParcelId,
                 parcelStatus,
                 IsRemoved,
                 LastModificationBasedOnCrab,
